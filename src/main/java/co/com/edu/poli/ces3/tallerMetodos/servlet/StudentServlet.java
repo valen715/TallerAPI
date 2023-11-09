@@ -118,28 +118,29 @@ public class StudentServlet extends MyServlet {
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
-        String studentID = request.getParameter("studentId");
-        PrintWriter out = response.getWriter();
-
-        if (studentID == null) {
-            out.println("Missing studentId parameter");
-        } else {
-            JsonObject body = this.getParamsFromBody(request);
-            Student updatedStudent = null;
-            for (Student student : students) {
-                if (student.getId() == Integer.parseInt(studentID)) {
-                    student.setDocument(body.get("document").getAsString());
-                    student.setName(body.get("name").getAsString());
-                    updatedStudent = student;
-                    break;
-                }
-            }
-            if (updatedStudent != null) {
-                out.println(gson.toJson(updatedStudent));
-            } else {
-                out.println("Student not found");
+        JsonObject body = this.getParamsFromPost(request);
+        int id = body.get("id").getAsInt();
+        String document = body.get("document").getAsString();
+        String name = body.get("name").getAsString();
+        Student studentToUpdate = null;
+        for (Student s : students) {
+            if (s.getId() == id) {
+                studentToUpdate = s;
+                break;
             }
         }
+
+        if (studentToUpdate != null) {
+            studentToUpdate.setDocument(document);
+            studentToUpdate.setName(name);
+
+            PrintWriter out = response.getWriter();
+            out.println(gson.toJson(studentToUpdate));
+            out.flush();
+        } else {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
+
     }
 
 
