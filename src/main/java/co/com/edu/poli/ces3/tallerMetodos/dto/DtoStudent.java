@@ -49,7 +49,7 @@ public class DtoStudent {
 
     @Override
     public String toString() {
-        return "El estudiante se llama: " + this.name +
-                " su documento es: " + this.document;
+        return "Student's name is: " + this.name +
+                " your document is: " + this.document;
     }
 }

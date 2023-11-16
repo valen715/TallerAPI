@@ -25,7 +25,7 @@ public class CtrStudent {
 
     public ArrayList<DtoStudent> getAllStudents() {
         try {
-            ArrayList<Student> students = modelStudent.all(); // Llama al método 'all' del modelo
+            ArrayList<Student> students = modelStudent.all();
             ArrayList<DtoStudent> dtoStudents = new ArrayList<>();
 
             for (Student student : students) {
@@ -49,7 +49,7 @@ public class CtrStudent {
             if (student != null) {
                 return new DtoStudent(student.getId(), student.getDocument(), student.getName());
             } else {
-                throw new RuntimeException("NO ESTÁ");
+                throw new RuntimeException("El usuario no esta");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

@@ -33,9 +33,9 @@ public class StudentServlet extends MyServlet {
         students = new ArrayList<>();
 
         DtoStudent student1 = new DtoStudent();
-        student1.id = 10;
-        student1.setName("diego");
-        student1.setDocument("1213");
+        student1.id = 17;
+        student1.setName("Valentina");
+        student1.setDocument("73469230347");
 
         students.add(student1);
 
@@ -43,7 +43,7 @@ public class StudentServlet extends MyServlet {
         {
             System.out.println(students.get(i));
         }
-        message = "I'm the best!!!";
+        message = "Hi, I'm developer";
     }
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -117,7 +117,8 @@ public class StudentServlet extends MyServlet {
 
         ctr.deleteStudent(studentId);
 
-        out.print(gson.toJson("Eliminado"));
+        out.print(gson.toJson("Usuario eliminado correctamente" +
+                ""));
         out.flush();
     }
 
@@ -136,9 +137,7 @@ public class StudentServlet extends MyServlet {
     }
 
     protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("************");
-        System.out.println("Entro al metodo patch!!!");
-        System.out.println("************");
+        System.out.println("Estamos en el metodo Patch");
     }
 
 }
