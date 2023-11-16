@@ -22,7 +22,7 @@ public abstract class Conexion {
     private String url = "jdbc:mysql://" + hostname + ":" + port + "/" + database + "?useSSL=false";
 
     // Nombre de usuario
-    public String username = "valentina";
+    public String username = "valen";
 
     // Clave de usuario
     public String password = "123";

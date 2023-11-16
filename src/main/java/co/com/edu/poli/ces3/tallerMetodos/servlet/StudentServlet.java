@@ -34,7 +34,7 @@ public class StudentServlet extends MyServlet {
 
         DtoStudent student1 = new DtoStudent();
         student1.id = 17;
-        student1.setName("Valentina");
+        student1.setName("Valen");
         student1.setDocument("73469230347");
 
         students.add(student1);
