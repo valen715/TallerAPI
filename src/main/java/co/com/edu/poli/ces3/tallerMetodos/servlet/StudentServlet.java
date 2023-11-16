@@ -1,6 +1,7 @@
 package co.com.edu.poli.ces3.tallerMetodos.servlet;
 
-import co.com.edu.poli.ces3.tallerMetodos.model.Student;
+import co.com.edu.poli.ces3.tallerMetodos.controller.CtrStudent;
+import co.com.edu.poli.ces3.tallerMetodos.dto.DtoStudent;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -12,176 +13,132 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 @WebServlet(name = "studentServlet", value = "/student")
 public class StudentServlet extends MyServlet {
     private String message;
 
-    private ArrayList<Student> students;
-
     private GsonBuilder gsonBuilder;
 
     private Gson gson;
 
+    private ArrayList<DtoStudent> students;
+
+    CtrStudent ctr = new CtrStudent();
 
     public void init() {
-
+        gsonBuilder = new GsonBuilder();
+        gson = gsonBuilder.create();
         students = new ArrayList<>();
 
-        Student student1 = new Student();
-        student1.id = 1;
-        student1.setName("Valentina");
-        student1.setDocument("123456899");
+        DtoStudent student1 = new DtoStudent();
+        student1.id = 10;
+        student1.setName("diego");
+        student1.setDocument("1213");
 
         students.add(student1);
 
-        gsonBuilder = new GsonBuilder();
-        gson = gsonBuilder.create();
-
-        for (int i = 0; i < students.size(); i ++){
+        for (int i = 0; i < students.size(); i++)
+        {
             System.out.println(students.get(i));
         }
-
-
+        message = "I'm the best!!!";
     }
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         ServletOutputStream out = resp.getOutputStream();
         resp.setContentType("application/json");
-
-        JsonObject body =  this.getParamsFromPost(req);
-
-        Student std = new Student(
-                body.get("id").getAsInt(),
+        JsonObject body = this.getParamsFromPost(req);
+        DtoStudent std = new DtoStudent(
                 body.get("document").getAsString(),
                 body.get("name").getAsString()
-
         );
-        this.students.add(std);
-        out.println(gson.toJson(std));
-        out.println("<b>Hello from post method</b>");
+
+        DtoStudent newStudent = ctr.addStudent(std);
+
+        out.print(gson.toJson(newStudent));
+        out.flush();
+
+
+    }
+
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ServletOutputStream out = resp.getOutputStream();
+        resp.setContentType("application/json");
+        String studentIdParam = req.getParameter("id");
+
+        if (studentIdParam != null && !studentIdParam.isEmpty()) {
+            int studentId = Integer.parseInt(studentIdParam);
+            DtoStudent student = ctr.getStudentById(studentId);
+            out.print(gson.toJson(student));
+        } else {
+            ArrayList<DtoStudent> students = ctr.getAllStudents();
+            out.print(gson.toJson(students));
+        }
+
         out.flush();
     }
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType("application/json");
-        String studentID = request.getParameter("studentId");
-        PrintWriter out = response.getWriter();
-
-        if (studentID == null) {
-            out.println(gson.toJson(students));
-        } else {
-            Student foundStudent = null;
-            for (Student student : students) {
-                if (student.getId() == Integer.parseInt(studentID)) {
-                    foundStudent = student;
-                    break;
-                }
-            }
-            if (foundStudent != null) {
-                out.println(gson.toJson(foundStudent));
-            } else {
-                out.println("Student Not Found");
-            }
-        }
-    }
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json");
-        String studentID = request.getParameter("studentId");
-        PrintWriter out = response.getWriter();
-
-        if (studentID == null) {
-            out.println("Missing student parameter");
-        } else {
-            boolean studentRemoved = false;
-            Iterator<Student> iterator = students.iterator();
-            while (iterator.hasNext()) {
-                Student student = iterator.next();
-                if (student.getId() == Integer.parseInt(studentID)) {
-                    iterator.remove();
-                    studentRemoved = true;
-                    out.println("Student delete");
-                    break;
-                }
-            }
-            if (!studentRemoved) {
-                out.println("Student not found");
-            }
-        }
-    }
-
-    @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json");
-        JsonObject body = this.getParamsFromPost(request);
-        int id = body.get("id").getAsInt();
-        String document = body.get("document").getAsString();
-        String name = body.get("name").getAsString();
-        Student studentToUpdate = null;
-        for (Student s : students) {
-            if (s.getId() == id) {
-                studentToUpdate = s;
-                break;
-            }
-        }
-
-        if (studentToUpdate != null) {
-            studentToUpdate.setDocument(document);
-            studentToUpdate.setName(name);
-
-            PrintWriter out = response.getWriter();
-            out.println(gson.toJson(studentToUpdate));
-            out.flush();
-        } else {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-        }
-
-    }
-
-
-    @Override
-    protected void doPatch(HttpServletRequest request, HttpServletResponse response, JsonObject requestBody) throws ServletException, IOException {
-        response.setContentType("application/json");
-        String studentID = request.getParameter("studentId");
-        PrintWriter out = response.getWriter();
-
-        if (studentID == null) {
-            out.println("Missing studentId parameter");
-        } else {
-            JsonObject body = this.getParamsFromBody(request);
-            Student updatedStudent = null;
-            for (Student student : students) {
-                if (student.getId() == Integer.parseInt(studentID)) {
-                    if (body.has("document")) {
-                        student.setDocument(body.get("document").getAsString());
-                    }
-                    if (body.has("name")) {
-                        student.setName(body.get("name").getAsString());
-                    }
-                    updatedStudent = student;
-                    break;
-                }
-            }
-            if (updatedStudent != null) {
-                out.println(gson.toJson(updatedStudent));
-            } else {
-                out.println("Student not found");
-            }
-        }
-    }
-
-    private JsonObject getParamsFromBody(HttpServletRequest request) throws IOException {
-        StringBuilder buffer = new StringBuilder();
-        BufferedReader reader = request.getReader();
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ServletOutputStream out = resp.getOutputStream();
+        resp.setContentType("application/json");
+        BufferedReader reader = req.getReader();
+        StringBuilder stringBuilder = new StringBuilder();
         String line;
+
         while ((line = reader.readLine()) != null) {
-            buffer.append(line);
+            stringBuilder.append(line);
         }
-        return gson.fromJson(buffer.toString(), JsonObject.class);
+
+        JsonObject body = gson.fromJson(stringBuilder.toString(), JsonObject.class);
+        int studentId = body.get("id").getAsInt();
+
+        DtoStudent updatedStudent = new DtoStudent(
+                body.get("document").getAsString(),
+                body.get("name").getAsString()
+        );
+
+        DtoStudent result = ctr.updateStudent(studentId, updatedStudent);
+
+        out.print(gson.toJson(result));
+        out.flush();
     }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        ServletOutputStream out = resp.getOutputStream();
+        resp.setContentType("application/json");
+
+        int studentId = Integer.parseInt(req.getParameter("id"));
+
+        ctr.deleteStudent(studentId);
+
+        out.print(gson.toJson("Eliminado"));
+        out.flush();
+    }
+
+
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String method = req.getMethod();
+        switch (method){
+            case "PATCH":
+                this.doPatch(req, resp);
+                break;
+            default:
+                super.service(req, resp);
+        }
+
+    }
+
+    protected void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("************");
+        System.out.println("Entro al metodo patch!!!");
+        System.out.println("************");
+    }
+
 }
